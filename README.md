@@ -1,107 +1,127 @@
-ProcessTrust Auditor
+# ProcessTrust Auditor
 
-A beginner friendly Windows process and network security auditing tool built with PowerShell.
+**A beginner-friendly Windows process and network security auditing tool built with PowerShell.**
 
-ProcessTrust Auditor helps Windows users investigate running processes, examine digital signatures, identify active network connections, and collect supporting information about remote IP addresses.
+ProcessTrust Auditor helps Windows users investigate running processes, examine digital signatures, identify active TCP connections, and collect information about remote IP addresses.
 
-The project was developed as part of HereTryingToProvideSolutions (HTTPS), a hands on cybersecurity portfolio focused on investigating real problems and developing practical solutions.
+This project is part of **HereTryingToProvideSolutions (HTTPS)**, a hands-on cybersecurity portfolio focused on investigating real problems and developing practical solutions.
 
-Why I Built This
-While investigating running processes and network connections on my own Windows computer, I discovered that identifying unfamiliar activity often requires several PowerShell commands and manual lookups.
-I wanted to combine those steps into one tool that could collect useful evidence and make the investigation process easier, especially for people who are still learning cybersecurity.
+## Why I Built This
 
-Features
--Enumerates running Windows processes and records their process IDs.
--Checks accessible executable files for digital signatures.
--Collects associated Windows service information when available.
--Identifies established TCP connections and their remote IP addresses and ports.
--Performs reverse DNS and RDAP lookups for additional destination context.
--Assigns preliminary review priorities based on defined security indicators.
--Exports process and network connection reports as CSV files.
--Includes a simple Windows launcher for users unfamiliar with PowerShell.
+While investigating processes and network connections on my own Windows computer, I found that identifying unfamiliar activity often requires several PowerShell commands and manual lookups. I wanted to combine those steps into one tool that collects useful evidence and makes investigation easier, especially for people learning cybersecurity.
 
-Getting Started
-Requirements
--Windows with PowerShell 5.1 or later
--Internet connectivity for RDAP and reverse DNS enrichment
--Appropriate permissions to inspect processes and network connections
--Microsoft Excel or another CSV viewer (optional)
+## Features
 
-How to Run
+- Lists running Windows processes and process IDs (PIDs).
+- Checks accessible executable files for digital signatures.
+- Collects associated Windows service information when available.
+- Records established TCP connections, including remote IP addresses and ports.
+- Performs reverse DNS and RDAP lookups for destination context.
+- Assigns preliminary review scores and priorities based on defined indicators.
+- Exports separate process and network connection CSV reports.
+- Includes a double-click Windows launcher.
 
-Step 1 — Download ProcessTrust
-At the top of this repository, find the Code dropdown above the file list.
-Select Download ZIP.
+## Getting Started
 
-Step 2 — Extract the files
-Find `ProcessTrust-Auditor-main.zip` in your Downloads folder.
-Right-click it, choose Extract All..., then click Extract.
-Open the extracted folder containing `Run_ProcessTrust.bat`.
-Important: Do not run the launcher from inside the ZIP. Extract the files first.
+### Requirements
 
-Step 3 — Run the audit
-Double-click `Run_ProcessTrust.bat` in the extracted folder.
-Review the startup information and press a key when prompted.
-Wait for the audit to finish. Network lookups may take some time.
+- Windows with PowerShell 5.1 or later
+- Internet connection for network enrichment
+- Permissions to inspect processes and connections
+- Excel or another CSV viewer (optional)
 
-Step 4 — View the reports
-When prompted, type Y and press Enter to open the reports folder.
-Open the newly generated process and connection CSV files in Excel or another spreadsheet application.
-Check the timestamps and any error messages to confirm the run completed successfully.
-Running as administrator may provide more complete process information. Only run scripts you trust, and review their contents before execution.
+### How to Run
 
-See ProcessTrust in Action
-These screenshots are from a real Windows 11 test. Your results will vary.
-1. Extracted files — locate the launcher
+**1. Download:** Above the repository file list, click **Code → Download ZIP**.
+
+**2. Extract:** In Downloads, right-click `ProcessTrust-Auditor-main.zip`, choose **Extract All**, and open the extracted folder. **Do not run the launcher from inside the ZIP.**
+
+**3. Run:** Double-click `Run_ProcessTrust.bat`, read the startup notice, and press a key when prompted. Wait for the audit to finish.
+
+**4. Review:** When prompted, enter **Y** to open the reports folder. Open the newly generated CSV files and check their timestamps and the command window for errors.
+
+Running as administrator may provide more complete information. Review scripts before running them, and only run software you trust.
+
+## What to Expect: Screenshots
+
+These are screenshots from a real Windows 11 test. Your results will vary.
+
+### 1. Extracted files
+
+Locate `Run_ProcessTrust.bat` in the extracted folder.
+
 ![Extracted ProcessTrust files](01-extracted-files.png)
-2. Startup screen — read the audit notice
+
+### 2. Audit startup
+
+Read the notice and follow the prompt.
+
 ![ProcessTrust startup screen](02-audit-start.png)
-3. Audit summary — review the totals
+
+### 3. Audit summary
+
+This example recorded **224 processes**, **19 established TCP connections**, **219 `NoFlags`**, and **5 `Informational`** process findings.
+
 ![ProcessTrust completed audit summary](03-audit-summary.png)
-In this example, ProcessTrust recorded 224 processes, 19 established TCP connections, 219 `NoFlags`, and 5 `Informational` process findings. This is a snapshot, not continuous monitoring.
-4. Process report — investigate flagged entries
-![McAfee review findings in the process report](04-mcafee-review-finding.png)
-The McAfee-related entries scored `10` because the individual executable signature check returned `NotSigned`. A score of 10 is not a 10/10 malware rating, and `Informational` does not mean malicious activity was confirmed.
-I investigated these findings with additional PowerShell commands to check running processes, Microsoft Store package signing, Windows Defender status, and Windows application provisioning. The evidence was consistent with legitimate packaged software, but it did not establish the original installer or independently authenticate every executable.
-Read the full McAfee investigation and PowerShell commands
-Understanding the Reports
-ProcessTrust generates two CSV reports:
-Process Report: Process names, PIDs, executable paths, signature status, associated services, network connection counts, risk scores, and review priorities.
-Network Connection Report: Process information, local and remote IP addresses, ports, TCP connection states, reverse DNS results, and RDAP network information.
-You can open the CSV files in Excel, widen columns, and filter rows for further investigation.
-Understanding Review Priorities
-NoFlags: No defined indicators were triggered. This does not guarantee a process is safe.
-Informational: A defined condition was detected and may deserve review.
-Higher-priority findings: Stronger or combined indicators may warrant more immediate investigation, depending on the script's scoring rules.
-Risk scores are investigation aids, not malware verdicts or percentages of danger. In v1.3, an unsigned executable can receive a score of `10` even when additional context suggests a legitimate application.
-Example Investigation: LockApp.exe
-During development, ProcessTrust identified a connection involving the Windows lock-screen application, `LockApp.exe`, communicating with a public IP address over TCP port 80.
-I investigated the executable path and command line, verified its Microsoft Windows digital signature, checked the remote IP address, and performed an RDAP lookup that identified Fastly as the network operator.
-The investigation did not establish malicious activity. It demonstrated how combining process and network evidence can help an analyst make a better-informed assessment. RDAP ownership alone does not identify the exact website or content requested.
-Limitations
-ProcessTrust is not antivirus software or an intrusion detection system.
-Network connections are collected as a snapshot, not continuously monitored.
-Some protected Windows processes cannot be inspected completely.
-An unsigned executable is not automatically malicious.
-A valid signature does not guarantee that a process is behaving safely.
-RDAP identifies network registration information, not necessarily the exact website contacted.
-Reverse DNS records may be unavailable.
-Exact requested URLs and network content are not collected.
-Risk classifications depend on the script's current detection rules.
-The launcher may display a completion message even after a script failure; check for errors and freshly timestamped reports.
-Skills Demonstrated
-Windows process investigation
-PowerShell scripting and automation
-Digital signature verification
-TCP/IP connection analysis
-DNS and RDAP investigation
-Security triage and evidence-based assessment
-False-positive investigation
-CSV evidence collection and reporting
-Future Improvements
-Potential improvements include application package signature verification, clearer scoring terminology, additional process context, improved launcher error handling, and optional network monitoring. These are possible future enhancements rather than features currently implemented.
-License
-This project is distributed under the MIT License.
+
+### 4. A finding worth investigating
+
+McAfee-related processes received a score of **10** because their individual executable signature checks returned `NotSigned`.
+
+![McAfee entries flagged for review](04-mcafee-review-finding.png)
+
+**A score of 10 is not a 10/10 malware rating.** It indicates a scoring condition that deserves context, not confirmed malicious activity. I investigated the finding using PowerShell to check executable paths, Microsoft Store package signing, Windows Defender status, and application provisioning.
+
+**[Read the McAfee investigation and PowerShell commands](McAfee-Investigation.md)**
+
+## Understanding the Reports
+
+ProcessTrust generates two CSV files:
+
+- **Process report:** Process names, PIDs, executable paths, signature results, associated services, connection counts, risk scores, and review priorities.
+- **Network connection report:** Processes, local and remote IP addresses and ports, TCP states, reverse DNS, and RDAP information.
+
+Open the CSV files in Excel or another spreadsheet viewer. Widen columns and use filters to examine specific rows.
+
+## Understanding Review Scores
+
+- **`NoFlags`:** None of the current defined indicators were triggered. This does **not** guarantee safety.
+- **`Informational`:** A condition was detected that may merit further review.
+- **Higher-priority findings:** Stronger or combined indicators may deserve closer attention, depending on the current scoring rules.
+
+Scores help **prioritize investigation**. They are not malware verdicts or percentages of danger. An unsigned executable is not automatically malicious.
+
+## Another Investigation: LockApp.exe
+
+During development, ProcessTrust identified an established TCP connection involving the Windows lock-screen application, `LockApp.exe`, and a public IP address on port 80.
+
+I checked the executable path, verified its Microsoft signature, and used RDAP to identify Fastly as the remote network operator. The available evidence did not establish malicious activity. RDAP network ownership does not identify the exact requested website or content.
+
+## Limitations
+
+- Not antivirus software or an intrusion detection system.
+- Reports show a **snapshot**, not continuous monitoring.
+- Protected processes may not expose all information.
+- Valid signatures do not guarantee safe behavior; unsigned files are not automatically malicious.
+- RDAP shows registration context, not necessarily the exact website contacted.
+- Reverse DNS may be missing; URLs and network content are not collected.
+- Review scores depend on the current rules.
+- The launcher may display a completion message even after a script failure; verify the command output and timestamps of newly generated reports.
+
+## Skills Demonstrated
+
+PowerShell automation · Windows process investigation · Digital signatures · TCP/IP analysis · DNS and RDAP · Security triage · Evidence-based assessment · CSV reporting
+
+## Future Improvements
+
+Possible enhancements include package-level signature checks, clearer review-score terminology, parent-process context, improved launcher error handling, and optional network monitoring. These are **not** current features.
+
+## License
+
+Distributed under the MIT License.
+
 ---
-HereTryingToProvideSolutions (HTTPS)
-Learning cybersecurity by investigating problems, building tools, and testing practical solutions.
+
+**HereTryingToProvideSolutions (HTTPS)**
+
+*Learning cybersecurity by investigating problems, building tools, and testing practical solutions.*
