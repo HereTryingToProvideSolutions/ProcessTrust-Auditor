@@ -36,42 +36,29 @@ I wanted to combine those steps into one tool that could collect useful evidence
 ### How to Run
 
 Step 1 — Download ProcessTrust
+Scroll to the top of this repository.
+Find the Code dropdown above the file list.
+Click Code → Download ZIP.
 
-Click the green Code button at the top of this GitHub page.
-
-Select Download ZIP.
-
+Step 2 — Extract the Files
 Find ProcessTrust-Auditor-main.zip in your Downloads folder.
-
-Step 2 — Extract the Files (Important!)
-
-Right-click ProcessTrust-Auditor-main.zip.
-
-Select Extract All...
-
+Right-click the ZIP file and select Extract All...
 Click Extract.
+Open the newly extracted folder.
 
-Open the newly extracted ProcessTrust-Auditor-main folder.
+Important: Do not run ProcessTrust directly from inside the ZIP file. Extract the files first.
 
-Do not run ProcessTrust directly from inside the ZIP file. It must be extracted first.
-
-Step 3 — Run the Audit
-
-Inside the extracted folder, double-click Run_ProcessTrust.bat.
-
-A black Command Prompt window will open.
-
-Press Enter when prompted to begin the scan.
-
+Step 3 — Run ProcessTrust
+Double-click Run_ProcessTrust.bat inside the extracted folder.
+Follow the instructions in the Command Prompt window.
 Wait for the audit to finish.
 
 Step 4 — View Your Results
 
-Look for === ProcessTrust v1.3 === in the Command Prompt window to confirm the audit ran.
+When prompted, type Y and press Enter to open the reports folder.
+Open the generated CSV reports in Excel or another spreadsheet application.
+Review the process information, network connections, and informational findings.
 
-When asked to open the reports folder, type Y and press Enter.
-
-Open the two newly generated CSV reports in Excel or another spreadsheet application.
 ## Understanding the Reports
 
 ProcessTrust generates two reports:
