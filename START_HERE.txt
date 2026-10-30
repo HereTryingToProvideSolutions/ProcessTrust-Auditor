@@ -1,0 +1,43 @@
+ProcessTrust v1.3 - Easy Start (Windows 10/11)
+================================================
+
+1. Extract the entire ZIP to a folder.
+2. Keep Run_ProcessTrust.bat and ProcessTrust_v1_3.ps1 together.
+3. Double-click Run_ProcessTrust.bat.
+4. Read the information on screen and press a key to begin.
+5. When the audit finishes, choose Y to open the reports folder.
+
+If Windows displays a security warning, do not ignore it automatically.
+Only run scripts from sources you trust. You can inspect both files in Notepad.
+If your organization manages your computer, ask IT before running scripts.
+
+For more complete process information, right-click Run_ProcessTrust.bat
+and choose "Run as administrator" if you have permission.
+
+WHAT THE REPORTS MEAN
+---------------------
+Processes CSV: one row per observed process, including its signature,
+service information, connection count, and review priority.
+
+Connections CSV: one row per observed established TCP connection,
+including destination IP, port, and available RDAP/DNS context.
+
+NoFlags: none of the script's current risk rules triggered.
+Informational: a low-priority indicator was found; not proof of malware.
+Review / HighReview: stronger or combined indicators warrant attention;
+not a definitive malware verdict.
+NotChecked: the script could not verify the running file signature.
+
+LIMITATIONS
+-----------
+- The audit is a snapshot, not continuous monitoring.
+- Network ownership does not prove that a connection is safe.
+- The requested domain, URL, and content are generally not available.
+- Reverse DNS and RDAP require network access and can fail.
+- This is a triage tool, not an antivirus or malware detector.
+- The launcher uses a one-time PowerShell execution-policy bypass.
+  It does not permanently change your system execution policy.
+- No processes are terminated and no firewall rules are changed.
+
+The CSV files may contain private local network and executable path data.
+Review them before sharing publicly.
