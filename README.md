@@ -1,7 +1,7 @@
 
 # ProcessTrust Auditor
 
-**A beginner-friendly Windows process and network security auditing tool built with PowerShell.**
+**A beginner friendly Windows process and network security auditing tool built with PowerShell.**
 
 ProcessTrust Auditor helps Windows users investigate running processes, examine digital signatures, identify active network connections, and collect supporting information about remote IP addresses.
 
