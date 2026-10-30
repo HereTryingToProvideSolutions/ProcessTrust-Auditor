@@ -5,7 +5,7 @@
 
 ProcessTrust Auditor helps Windows users investigate running processes, examine digital signatures, identify active network connections, and collect supporting information about remote IP addresses.
 
-The project was developed as part of **HereTryingToProvideSolutions (HTTPS)**, a hands-on cybersecurity portfolio focused on investigating real problems and developing practical solutions.
+The project was developed as part of **HereTryingToProvideSolutions (HTTPS)**, a hands on cybersecurity portfolio focused on investigating real problems and developing practical solutions.
 
 ## Why I Built This
 
