@@ -1,5 +1,4 @@
-# ProcessTrust-Auditor
-A PowerShell based Windows process and network triage tool with signature checks, risk scoring, and destination enrichment.
+
 # ProcessTrust Auditor
 
 **A beginner-friendly Windows process and network security auditing tool built with PowerShell.**
