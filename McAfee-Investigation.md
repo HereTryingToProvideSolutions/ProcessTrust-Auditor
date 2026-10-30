@@ -1,74 +1,93 @@
-# Case Study: Why Did McAfee Score 10?
+# McAfee Investigation: Why Did ProcessTrust Give It a Score of 10?
 
-## Initial finding
+## What I Found
 
-While testing ProcessTrust Auditor v1.3 on my own Windows 11 computer, I found `mcafee-security` and `mcafee-security-ft` listed as `Informational`, each with a `RiskScore` of `10` after an individual executable signature result of `NotSigned`.
+While testing ProcessTrust Auditor v1.3 on my Windows 11 computer, I noticed two processes, `mcafee-security` and `mcafee-security-ft`, in the report. Both had a `RiskScore` of `10` and an `Informational` review priority because the individual executable signature checks returned `NotSigned`.
 
-I wasn't intentionally using McAfee as my antivirus, so I wanted to find out what those processes were and whether the score indicated an actual security problem.
+I wasn't using McAfee as my main antivirus, so I wanted to know why those processes were running and whether there was actually a security problem.
 
 ![McAfee entries in the process report](04-mcafee-review-finding.png)
 
-**Important:** ProcessTrust's score is a prompt to investigate, **not a malware diagnosis or probability**.
+**The score is a reason to investigate, not proof of malware.**
 
-## 1. Identify the running processes
+## 1. Find the Processes
+
+I started by checking their names, process IDs, and executable paths.
 
 ```powershell
 Get-Process *mcafee* -ErrorAction SilentlyContinue | Select-Object ProcessName, Id, Path
 ```
 
-**Observed:** Both McAfee named processes had executable paths inside a `McAfeeSecurity` package directory under `C:\Program Files\WindowsApps`.
+**Result:** Both processes were running from a McAfeeSecurity application package directory under `C:\Program Files\WindowsApps`.
 
-## 2. Inspect the Windows application package
+## 2. Check the Windows Application Package
+
+Next, I looked at the installed application package information.
 
 ```powershell
 Get-AppxPackage *McAfee* | Select-Object Name, Version, Publisher, InstallLocation, SignatureKind, Status
 ```
 
-**Observed:**
+**Results:**
+
 - Package name: `5A894077.McAfeeSecurity`
 - Version: `2.1.68.0`
-- SignatureKind: `Store`
-- Status: `Ok`
+- `SignatureKind`: `Store`
+- `Status`: `Ok`
 
-The package reported Store signing and a healthy package status. This is reassuring package level context, but **it does not by itself independently authenticate every executable or explain the original installation source**. It also helps explain why a file level `NotSigned` result shouldn't automatically be treated as a threat.
+Windows reported that the package used Microsoft Store signing and had an `Ok` status. That gave me useful context, but it didn't independently verify every executable or tell me who originally installed the application.
 
-## 3. Determine the registered antivirus
+It also showed why I shouldn't assume that a `NotSigned` result for one file means the entire application is malicious.
+
+## 3. Check Which Antivirus Windows Is Using
+
+I wanted to know whether McAfee was registered as the computer's antivirus.
 
 ```powershell
 Get-CimInstance -Namespace root/SecurityCenter2 -ClassName AntiVirusProduct | Select-Object displayName, productState, pathToSignedProductExe
 ```
 
-**Observed:** Windows Defender was the only antivirus listed by Windows Security Center.
+**Result:** Windows Defender was the only antivirus listed by Windows Security Center.
+
+I also checked whether Defender was running:
 
 ```powershell
 Get-MpComputerStatus | Select-Object AMServiceEnabled, AntivirusEnabled, RealTimeProtectionEnabled
 ```
 
-**Observed:** All three values were `True`. Microsoft Defender's antivirus service and real time protection were enabled. This doesn't mean the McAfee processes weren't running; it means they weren't shown as the registered antivirus in that query.
+**Result:** All three values were `True`. Defender's antivirus service and real time protection were enabled.
 
-## 4. Investigate how McAfee got there
+This didn't mean the McAfee processes weren't running. It meant McAfee wasn't listed as the registered antivirus in that query.
+
+## 4. Look Into How McAfee Got There
+
+I checked whether the application was provisioned in Windows. This command required an administrator PowerShell window.
 
 ```powershell
 Get-AppxProvisionedPackage -Online | Where-Object DisplayName -Match "McAfee" | Select-Object DisplayName, PackageName
 ```
 
-**Observed:** `5A894077.McAfeeSecurity` was provisioned in Windows. This command required an elevated PowerShell session.
+**Result:** `5A894077.McAfeeSecurity` was provisioned in Windows.
+
+I checked the computer model:
 
 ```powershell
 Get-CimInstance Win32_ComputerSystem | Select-Object Manufacturer, Model
 ```
 
-**Observed:** Dell Inc., Inspiron 3501.
+**Result:** Dell Inc., Inspiron 3501.
+
+I checked the Windows installation date:
 
 ```powershell
 (Get-CimInstance Win32_OperatingSystem).InstallDate
 ```
 
-**Observed:** February 22, 2025.
+**Result:** February 22, 2025.
 
-I also inspected the package directory timestamps. Its creation time was June 7, 2022, and last write time was February 11, 2025. Those filesystem dates are **not proof of the application's original installation date**.
+The package directory showed a creation date of June 7, 2022, and a last modified date of February 11, 2025. Those dates don't prove when the application was originally installed.
 
-A search of the most recent 3,000 AppX deployment events returned no matching McAfee entries:
+I also searched the most recent 3,000 Windows application deployment events for McAfee:
 
 ```powershell
 Get-WinEvent -LogName "Microsoft-Windows-AppXDeploymentServer/Operational" -MaxEvents 3000 |
@@ -76,16 +95,18 @@ Get-WinEvent -LogName "Microsoft-Windows-AppXDeploymentServer/Operational" -MaxE
     Select-Object TimeCreated, Id, Message
 ```
 
-That absence doesn't establish how the app was installed; the relevant event may be older or absent from that log.
+**Result:** No matching events appeared in that search. That doesn't prove the application wasn't installed normally. The relevant events could be older or no longer available.
 
-## Assessment
+## My Assessment
 
-The available evidence is **consistent with McAfee having been included in Dell's software configuration or a Windows provisioning image**, but I could not identify the original installer or exact installation date.
+The evidence was consistent with McAfee being included in Dell's software setup or a Windows provisioning image. I couldn't confirm the original installer or exact installation date, so I wouldn't call that explanation proven.
 
-The McAfee package was Store signed and reported `Ok`, and Microsoft Defender was enabled with real time protection. **No malicious activity was established by these checks.** This is a limited assessment, not a complete malware forensic examination.
+The application package reported Store signing and an `Ok` status. Defender was also enabled with real time protection. **These checks did not establish malicious activity**, although they were not a complete forensic examination.
 
-## What I learned
+## What I Learned
 
-The most important lesson was to distinguish **a condition that needs verification** from **a confirmed threat**. A `NotSigned` file level result and a score of 10 did not tell the full story. Checking package metadata, executable paths, Windows Security Center, and provisioning provided context that the first scan lacked.
+The biggest lesson for me was that a finding from a script is only the start of an investigation.
 
-**Possible future improvement:** Check Store package context alongside individual executable signatures and label the score more explicitly as a *review score*.
+At first, I saw `NotSigned` and a score of 10. After checking the package information, executable paths, antivirus registration, and Windows provisioning, I had a much better explanation for what I was seeing.
+
+**One improvement for ProcessTrust:** I want to check Windows application package signing alongside individual file signatures and make it clearer that `RiskScore` is a review score, not a malware rating.
