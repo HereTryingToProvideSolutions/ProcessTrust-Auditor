@@ -6,7 +6,7 @@ While testing ProcessTrust Auditor v1.3 on my own Windows 11 computer, I found `
 
 I wasn't intentionally using McAfee as my antivirus, so I wanted to find out what those processes were and whether the score indicated an actual security problem.
 
-![McAfee entries in the process report](screenshots/04-mcafee-review-finding.png)
+![McAfee entries in the process report](04-mcafee-review-finding.png)
 
 **Important:** ProcessTrust's score is a prompt to investigate, **not a malware diagnosis or probability**.
 
